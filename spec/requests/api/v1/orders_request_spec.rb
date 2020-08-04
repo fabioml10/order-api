@@ -14,16 +14,9 @@ RSpec.describe "Api::V1::Orders", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it "returns an array object" do
+    it "responds with an array object" do
       get("#{host}/orders")
-      expect(json).to be_an_instance_of(Array)
-    end
-
-    it "returns all orders" do
-      order1 = Order.create(state_id: 1)
-      order2 = Order.create(state_id: 1)
-      get("#{host}/orders")
-      expect(json.length).to be > 1
+      expect(json['order']).to be_an_instance_of(Array)
     end
 
   end
@@ -34,7 +27,6 @@ RSpec.describe "Api::V1::Orders", type: :request do
       order = Order.create(state_id: 1)
       get("#{host}/orders/#{order.id}")
       expect(response).to have_http_status(:ok)
-      expect(json).to be_an_instance_of(Array)
     end
 
     it "order by number 404" do
@@ -42,12 +34,22 @@ RSpec.describe "Api::V1::Orders", type: :request do
       expect(response).to have_http_status(:not_found)
     end
 
-    it "order by state 404" do
-      get("#{host}/orders/state?state_id=0")
-      expect(response).to have_http_status(:not_found)
-    end
-
   end
+
+  describe "GET orders#state" do
+
+  it "responds with 200" do
+    order = Order.create(state_id: 1)
+    get("#{host}/orders/state?state_id=#{order.state_id}")
+    expect(response).to have_http_status(:ok)
+  end
+
+  it "order by state 404" do
+    get("#{host}/orders/state?state_id=0")
+    expect(response).to have_http_status(:not_found)
+  end
+
+end
 
   describe "POST orders#create" do
 
@@ -59,9 +61,10 @@ RSpec.describe "Api::V1::Orders", type: :request do
 
     it 'responds with 400' do
       order = { order: { state_id: 2 } }
-      post "#{host}/users", :params => order.to_json, :headers => { "Content-Type": "application/json" }
+      post "#{host}/orders", :params => order.to_json, :headers => { "Content-Type": "application/json" }
       expect(response).to have_http_status(:bad_request)
     end
+
   end
 
   describe 'PATCH order#edit' do
