@@ -13,6 +13,7 @@
 !/log/.keep
 !/tmp/.keep
 script.txt
+/coverage
 
 # Ignore pidfiles, but keep the directory.
 /tmp/pids/*
